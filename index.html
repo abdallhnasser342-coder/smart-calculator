@@ -1,464 +1,126 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#101827">
-<title>الحاسبة الذكية</title>
-<style>
-*{box-sizing:border-box}
-body{margin:0;background:#f3f6fb;color:#172033;font-family:Arial,sans-serif}
-header{background:linear-gradient(135deg,#101827,#1e40af);color:white;padding:30px 16px;text-align:center}
-header h1{margin:0 0 10px;font-size:27px}
-header p{color:#cbd5e1;margin:0}
-.container{max-width:900px;margin:auto;padding:18px}
-.search{width:100%;padding:15px;border:1px solid #dce2eb;border-radius:12px;font-size:16px;margin-bottom:17px}
-h2{font-size:19px;margin:25px 0 13px}
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
-.card{background:white;border:1px solid #e5eaf1;border-radius:14px;padding:17px 12px;text-align:center;cursor:pointer;box-shadow:0 3px 10px #17203308;transition:.2s}
-.card:active{transform:scale(.97)}
-.card .emoji{font-size:27px}
-.card h3{font-size:14px;margin:10px 0 0}
-.panel{display:none;background:white;padding:20px;border-radius:15px;margin-top:18px;border:1px solid #e5eaf1;box-shadow:0 5px 20px #1720330a}
-.panel h2{margin-top:0}
-input,select{width:100%;padding:13px;margin:8px 0 13px;border:1px solid #dce2eb;border-radius:9px;font-size:16px;background:white}
-label{font-size:14px;font-weight:bold}
-button{border:0;background:#2563eb;color:white;padding:13px 17px;border-radius:9px;font-size:15px;cursor:pointer}
-button:active{opacity:.8}
-.result{background:#eaf2ff;padding:18px;border-radius:10px;margin-top:15px;font-size:19px;font-weight:bold;overflow-wrap:anywhere;text-align:center}
-.result-actions{display:flex;gap:10px;margin-top:12px}
-.result-actions button{flex:1}
-.copy-btn{background:#0f766e}
-.share-btn{background:#16a34a}
-.back{background:#64748b;margin-bottom:15px}
-footer{text-align:center;padding:30px;color:#64748b;font-size:13px}
-.hidden{display:none!important}
-@media(min-width:600px){.grid{grid-template-columns:repeat(3,1fr)}}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>آلة حاسبة ذكية</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f3f4f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .calculator {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 280px;
+        }
+        #display {
+            width: 100%;
+            height: 50px;
+            font-size: 24px;
+            text-align: left;
+            direction: ltr;
+            margin-bottom: 15px;
+            padding: 5px;
+            box-sizing: border-box;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            background-color: #f9fafb;
+        }
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        button {
+            padding: 15px;
+            font-size: 18px;
+            cursor: pointer;
+            border: none;
+            border-radius: 6px;
+            background-color: #e5e7eb;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #d1d5db;
+        }
+        button.operator {
+            background-color: #f59e0b;
+            color: white;
+        }
+        button.operator:hover {
+            background-color: #d97706;
+        }
+        button.equal {
+            background-color: #10b981;
+            color: white;
+            grid-column: span 2;
+        }
+        button.equal:hover {
+            background-color: #059669;
+        }
+        button.clear {
+            background-color: #ef4444;
+            color: white;
+        }
+        button.clear:hover {
+            background-color: #dc2626;
+        }
+    </style>
 </head>
 <body>
 
-<header>
-<h1>🧮 الحاسبة الذكية</h1>
-<p>كل حساباتك في مكان واحد وبكل سهولة</p>
-</header>
+    <div class="calculator">
+        <input type="text" id="display" readonly>
+        <div class="buttons">
+            <button class="clear" onclick="clearDisplay()">C</button>
+            <button onclick="appendValue('/')" class="operator">/</button>
+            <button onclick="appendValue('*')" class="operator">×</button>
+            <button onclick="appendValue('-')" class="operator">-</button>
+            
+            <button onclick="appendValue('7')">7</button>
+            <button onclick="appendValue('8')">8</button>
+            <button onclick="appendValue('9')">9</button>
+            <button onclick="appendValue('+')" class="operator">+</button>
+            
+            <button onclick="appendValue('4')">4</button>
+            <button onclick="appendValue('5')">5</button>
+            <button onclick="appendValue('6')">6</button>
+            <button onclick="calculate()" class="equal">=</button>
+            
+            <button onclick="appendValue('1')">1</button>
+            <button onclick="appendValue('2')">2</button>
+            <button onclick="appendValue('3')">3</button>
+            <button onclick="appendValue('0')">0</button>
+        </div>
+    </div>
 
-<main class="container">
-<input class="search" id="search" placeholder="🔎 ابحث عن حاسبة..." oninput="filterCards()">
+    <script>
+        const display = document.getElementById('display');
 
-<div id="home">
-<div id="favorites"></div>
-<div id="categories"></div>
-</div>
+        function appendValue(val) {
+            display.value += val;
+        }
 
-<section class="panel" id="panel">
-<button class="back" onclick="goHome()">← رجوع</button>
-<h2 id="toolTitle"></h2>
-<div id="fields"></div>
-<button onclick="calculate()">احسب النتيجة</button>
-<div id="result"></div>
-</section>
-</main>
+        function clearDisplay() {
+            display.value = '';
+        }
 
-<footer>الحاسبة الذكية © 2026</footer>
+        function calculate() {
+            try {
+                display.value = eval(display.value);
+            } catch (error) {
+                display.value = 'خطأ';
+            }
+        }
+    </script>
 
-<script>
-const groups=[
-{title:"💰 المال والعمل",items:[
-["حاسبة المرتب","salary","💵"],
-["أجر الساعة","hour","⏱️"],
-["ساعات العمل","work","🕒"],
-["الإضافي والخصومات","overtime","📊"],
-["الميزانية والمصاريف","budget","💳"],
-["الأقساط","installment","🏦"],
-["القروض","loan","💰"],
-["الفائدة","interest","📈"],
-["الأرباح والخسائر","profit","💹"],
-["الخصومات والأسعار","discount","🏷️"],
-["ضريبة القيمة المضافة","tax","🧾"],
-["نقطة التعادل","break","🎯"]
-]},
-{title:"🏠 الحياة اليومية",items:[
-["العمر","age","🎂"],
-["فرق التواريخ","date","📅"],
-["عدد الأيام","days","🗓️"],
-["حاسبة النوم","sleep","😴"],
-["السعرات التقديرية","calories","🍎"],
-["تقسيم المصاريف","split","👥"],
-["استهلاك الكهرباء","electric","⚡"],
-["استهلاك المياه","water","💧"]
-]},
-{title:"📐 الرياضيات والتحويلات",items:[
-["الآلة الحاسبة","basic","🧮"],
-["النسبة المئوية","percent","％"],
-["الكسور","fraction","➗"],
-["المتوسط الحسابي","average","📊"],
-["المعادلات البسيطة","equation","✏️"],
-["تحويل الطول","length","📏"],
-["تحويل الوزن","weight","⚖️"],
-["درجة الحرارة","temperature","🌡️"],
-["المساحة","area","📐"],
-["الحجم","volume","🧊"]
-]},
-{title:"🚗 العقارات والسيارات",items:[
-["سعر المتر","meter","🏢"],
-["مساحة الشقة","apartment","🏠"],
-["عمولة الوسيط","commission","🤝"],
-["الإيجار السنوي","rent","🔑"],
-["استهلاك الوقود","fuel","⛽"],
-["تكلفة الرحلة","trip","🚘"],
-["صيانة السيارة","maintenance","🔧"]
-]}
-];
-
-let current="";
-let lastResult="";
-
-function draw(){
-document.getElementById("categories").innerHTML=groups.map(g=>`
-<h2>${g.title}</h2><div class="grid">${g.items.map(x=>`
-<div class="card" data-name="${x[0]}" onclick="openTool('${x[1]}','${x[0]}')">
-<div class="emoji">${x[2]}</div><h3>${x[0]}</h3>
-</div>`).join("")}</div>`).join("");
-}
-draw();
-
-function filterCards(){
-let q=document.getElementById("search").value.trim();
-document.querySelectorAll(".card").forEach(c=>{
-c.classList.toggle("hidden",!c.dataset.name.includes(q));
-});
-document.querySelectorAll("#categories h2").forEach(h=>{
-let grid=h.nextElementSibling;
-let hasResults=!!grid.querySelector(".card:not(.hidden)");
-h.classList.toggle("hidden",!hasResults);
-grid.classList.toggle("hidden",!hasResults);
-});
-}
-
-const configs={
-salary:[["المرتب الشهري","number","salary"],["عدد أيام العمل","number","days"],["عدد أيام الغياب","number","absence"]],
-hour:[["المرتب الشهري","number","salary"],["ساعات العمل يوميًا","number","hours"],["أيام العمل شهريًا","number","days"]],
-work:[["ساعة الحضور (مثال 9)","number","start"],["ساعة الانصراف (مثال 17)","number","end"],["فترة الراحة بالساعات","number","break"]],
-overtime:[["المرتب الأساسي","number","salary"],["ساعات الإضافي","number","hours"],["قيمة الإضافي للساعة","number","rate"],["الخصومات","number","deduction"]],
-budget:[["الدخل الشهري","number","income"],["المصاريف","number","expenses"]],
-installment:[["السعر الإجمالي","number","price"],["المقدم","number","down"],["عدد الشهور","number","months"]],
-loan:[["مبلغ القرض","number","price"],["نسبة الفائدة السنوية %","number","rate"],["عدد السنوات","number","years"]],
-interest:[["المبلغ الأصلي","number","price"],["نسبة الفائدة %","number","rate"],["عدد السنوات","number","years"]],
-profit:[["سعر البيع","number","sale"],["التكلفة","number","cost"]],
-discount:[["السعر الأصلي","number","price"],["نسبة الخصم %","number","rate"]],
-tax:[["المبلغ قبل الضريبة","number","price"],["نسبة الضريبة %","number","rate"]],
-break:[["التكاليف الثابتة","number","fixed"],["سعر بيع الوحدة","number","price"],["تكلفة الوحدة","number","cost"]],
-age:[["تاريخ الميلاد","date","birth"]],
-date:[["التاريخ الأول","date","first"],["التاريخ الثاني","date","second"]],
-days:[["تاريخ البداية","date","first"],["تاريخ النهاية","date","second"]],
-sleep:[["وقت النوم (ساعة)","number","start"],["وقت الاستيقاظ (ساعة)","number","end"]],
-calories:[["الوزن بالكيلو","number","weight"],["الطول بالسنتيمتر","number","height"],["العمر","number","age"],["الجنس","select","gender"]],
-split:[["إجمالي الفاتورة","number","price"],["عدد الأشخاص","number","people"]],
-electric:[["قدرة الجهاز بالوات","number","watts"],["عدد ساعات التشغيل يوميًا","number","hours"],["عدد الأيام","number","days"],["سعر الكيلووات ساعة","number","rate"]],
-water:[["الاستهلاك بالمتر المكعب","number","amount"],["سعر المتر المكعب","number","rate"]],
-basic:[["الرقم الأول","number","a"],["العملية","select","op"],["الرقم الثاني","number","b"]],
-percent:[["القيمة","number","price"],["النسبة %","number","rate"]],
-fraction:[["البسط الأول","number","a"],["المقام الأول","number","b"],["البسط الثاني","number","c"],["المقام الثاني","number","d"]],
-average:[["الأرقام مفصولة بفواصل","text","numbers"]],
-equation:[["قيمة a في ax+b=0","number","a"],["قيمة b","number","b"]],
-length:[["القيمة بالمتر","number","value"]],
-weight:[["القيمة بالكيلوجرام","number","value"]],
-temperature:[["درجة الحرارة المئوية","number","value"]],
-area:[["المساحة بالمتر المربع","number","value"]],
-volume:[["الحجم باللتر","number","value"]],
-meter:[["السعر الإجمالي","number","price"],["المساحة بالمتر","number","area"]],
-apartment:[["الطول بالمتر","number","length"],["العرض بالمتر","number","width"]],
-commission:[["قيمة الصفقة","number","price"],["نسبة العمولة %","number","rate"]],
-rent:[["الإيجار الشهري","number","price"],["عدد الشهور","number","months"]],
-fuel:[["المسافة بالكيلومتر","number","distance"],["استهلاك السيارة لكل 100 كم","number","consumption"],["سعر اللتر","number","rate"]],
-trip:[["المسافة بالكيلومتر","number","distance"],["استهلاك السيارة لكل 100 كم","number","consumption"],["سعر اللتر","number","rate"],["الرسوم الإضافية","number","extra"]],
-maintenance:[["سعر قطع الغيار","number","parts"],["أجرة الصيانة","number","labor"]]
-};
-
-function openTool(id,title){
-current=id;
-document.getElementById("home").style.display="none";
-document.getElementById("search").style.display="none";
-document.getElementById("panel").style.display="block";
-document.getElementById("toolTitle").textContent=title;
-document.getElementById("result").innerHTML="";
-let html=(configs[id]||[]).map(f=>{
-let input=f[1]==="select"?
-`<select id="${f[2]}">${(f[2]==="op"?["+","-","×","÷"]:["ذكر","أنثى"]).map(x=>`<option>${x}</option>`).join("")}</select>`:
-`<input id="${f[2]}" type="${f[1]}" ${f[1]==="number"?'step="any"':''}>`;
-return `<label>${f[0]}</label>${input}`;
-}).join("");
-document.getElementById("fields").innerHTML=html;
-window.scrollTo(0,0);
-}
-
-function val(id){
-return Number(document.getElementById(id)?.value||0);
-}
-
-function show(x){
-lastResult=String(x);
-document.getElementById("result").innerHTML=`
-<div class="result">النتيجة: ${lastResult}</div>
-<div class="result-actions">
-<button class="copy-btn" onclick="copyResult()">📋 نسخ النتيجة</button>
-<button class="share-btn" onclick="shareResult()">🟢 مشاركة</button>
-</div>`;
-}
-
-function copyResult(){
-let text="نتيجة "+document.getElementById("toolTitle").textContent+": "+lastResult;
-if(navigator.clipboard && window.isSecureContext){
-navigator.clipboard.writeText(text).then(()=>{
-alert("تم نسخ النتيجة");
-}).catch(()=>fallbackCopy(text));
-}else{
-fallbackCopy(text);
-}
-}
-
-function fallbackCopy(text){
-let area=document.createElement("textarea");
-area.value=text;
-document.body.appendChild(area);
-area.select();
-try{
-document.execCommand("copy");
-alert("تم نسخ النتيجة");
-}catch(e){
-alert("لم نتمكن من النسخ");
-}
-area.remove();
-}
-
-function shareResult(){
-let text="نتيجة "+document.getElementById("toolTitle").textContent+": "+lastResult;
-let url="https://wa.me/?text="+encodeURIComponent(text);
-window.open(url,"_blank");
-}
-
-function calculate(){
-let r=0;
-
-switch(current){
-case"salary":
-if(val("days")<=0)return show("أدخل عدد أيام عمل صحيح");
-if(val("absence")>val("days"))return show("أيام الغياب أكبر من أيام العمل");
-r=val("salary")*(val("days")-val("absence"))/val("days");
-break;
-
-case"hour":
-if(val("hours")<=0||val("days")<=0)return show("أدخل ساعات وأيام عمل صحيحة");
-r=val("salary")/(val("hours")*val("days"));
-break;
-
-case"work":
-if(val("start")<0||val("start")>23||val("end")<0||val("end")>23||val("break")<0)return show("راجع أوقات العمل");
-r=val("end")-val("start")-val("break");
-if(r<0)r+=24;
-break;
-
-case"overtime":
-r=val("salary")+val("hours")*val("rate")-val("deduction");
-break;
-
-case"budget":
-r=val("income")-val("expenses");
-break;
-
-case"installment":
-if(val("months")<=0)return show("أدخل عدد شهور صحيح");
-r=(val("price")-val("down"))/val("months");
-break;
-
-
-case"loan":{
-let p=val("price");
-let annual=val("rate");
-let years=val("years");
-
-if(p<=0||years<=0||annual<0)
-return show("راجع مبلغ القرض والفائدة والمدة");
-
-let n=years*12;
-let monthlyRate=annual/1200;
-
-let payment=monthlyRate===0
-?p/n
-:p*monthlyRate/(1-Math.pow(1+monthlyRate,-n));
-
-let total=payment*n;
-let interest=total-p;
-
-return show(
-"القسط الشهري: "+payment.toLocaleString("ar-EG",{maximumFractionDigits:2})+
-" جنيه | إجمالي السداد: "+total.toLocaleString("ar-EG",{maximumFractionDigits:2})+
-" جنيه | إجمالي الفائدة: "+interest.toLocaleString("ar-EG",{maximumFractionDigits:2})+" جنيه"
-);
-}
-
-
-case"interest":
-r=val("price")*val("rate")/100*val("years");
-break;
-
-case"profit":
-r=val("sale")-val("cost");
-break;
-
-case"discount":
-r=val("price")*(1-val("rate")/100);
-break;
-
-case"tax":
-r=val("price")*(1+val("rate")/100);
-break;
-
-case"break":
-if(val("price")<=val("cost"))return show("سعر البيع يجب أن يكون أكبر من تكلفة الوحدة");
-r=val("fixed")/(val("price")-val("cost"));
-break;
-
-case"age":{
-let birth=document.getElementById("birth").value;
-if(!birth)return show("أدخل تاريخ الميلاد");
-let d=new Date(birth);
-if(isNaN(d.getTime()))return show("تاريخ الميلاد غير صحيح");
-let n=new Date(),a=n.getFullYear()-d.getFullYear();
-if(n<new Date(n.getFullYear(),d.getMonth(),d.getDate()))a--;
-if(a<0)return show("تاريخ الميلاد لا يمكن أن يكون في المستقبل");
-return show(a+" سنة");
-}
-
-case"date":case"days":{
-let first=document.getElementById("first").value;
-let second=document.getElementById("second").value;
-if(!first||!second)return show("أدخل التاريخين");
-let a=new Date(first),b=new Date(second);
-if(isNaN(a.getTime())||isNaN(b.getTime()))return show("التاريخ غير صحيح");
-return show(Math.abs(Math.round((b-a)/86400000))+" يوم");
-}
-
-case"sleep":
-r=(val("end")-val("start")+24)%24;
-break;
-
-case"calories":{
-let w=val("weight"),h=val("height"),a=val("age");
-if(w<=0||h<=0||a<=0)return show("أدخل بيانات صحيحة");
-let g=document.getElementById("gender").value;
-r=10*w+6.25*h-5*a+(g==="ذكر"?5:-161);
-return show(r.toLocaleString("ar-EG",{maximumFractionDigits:2})+" سعر حراري تقريبًا كمعدل أساسي");
-}
-
-case"split":
-if(val("people")<=0)return show("عدد الأشخاص غير صحيح");
-r=val("price")/val("people");
-break;
-
-case"electric":
-r=val("watts")/1000*val("hours")*val("days")*val("rate");
-break;
-
-case"water":
-r=val("amount")*val("rate");
-break;
-
-case"basic":{
-let a=val("a"),b=val("b"),op=document.getElementById("op").value;
-r=op==="+"?a+b:op==="-"?a-b:op==="×"?a*b:b===0?"لا يمكن القسمة على صفر":a/b;
-break;
-}
-
-case"percent":
-r=val("price")*val("rate")/100;
-break;
-
-case"fraction":{
-let a=val("a"),b=val("b"),c=val("c"),d=val("d");
-if(!b||!d)return show("المقام لا يمكن أن يكون صفرًا");
-r=(a/b)+(c/d);
-break;
-}
-
-case"average":{
-let raw=document.getElementById("numbers").value.trim();
-if(!raw)return show("أدخل الأرقام مفصولة بفواصل");
-let arr=raw.split(",").map(x=>x.trim());
-if(arr.some(x=>x===""||!Number.isFinite(Number(x))))return show("راجع الأرقام واستخدم الفاصلة للفصل بينها");
-arr=arr.map(Number);
-r=arr.reduce((a,b)=>a+b,0)/arr.length;
-break;
-}
-
-case"equation":
-if(val("a")===0)return show("قيمة a لا تصلح للقسمة على صفر");
-r=-val("b")/val("a");
-break;
-
-case"length":
-r=val("value")*100;
-break;
-
-case"weight":
-r=val("value")*1000;
-break;
-
-case"temperature":
-r=val("value")*9/5+32;
-break;
-
-case"area":
-r=val("value")*10000;
-break;
-
-case"volume":
-r=val("value")*1000;
-break;
-
-case"meter":
-if(!val("area"))return show("أدخل مساحة صحيحة");
-r=val("price")/val("area");
-break;
-
-case"apartment":
-r=val("length")*val("width");
-break;
-
-case"commission":
-r=val("price")*val("rate")/100;
-break;
-
-case"rent":
-r=val("price")*val("months");
-break;
-
-case"fuel":case"trip":{
-let liters=val("distance")*val("consumption")/100;
-r=liters*val("rate")+(current==="trip"?val("extra"):0);
-break;
-}
-
-case"maintenance":
-r=val("parts")+val("labor");
-break;
-}
-
-if(typeof r!=="number"||!Number.isFinite(r))return show("راجع القيم المدخلة");
-show(r.toLocaleString("ar-EG",{maximumFractionDigits:2}));
-}
-
-function goHome(){
-document.getElementById("panel").style.display="none";
-document.getElementById("home").style.display="block";
-document.getElementById("search").style.display="block";
-document.getElementById("search").value="";
-lastResult="";
-filterCards();
-window.scrollTo(0,0);
-}
-</script>
 </body>
 </html>
